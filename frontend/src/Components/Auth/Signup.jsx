@@ -18,6 +18,8 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+       // Redirect to the /track route after successful registration
+      navigate("/track");
     try {
       const response = await axios.post(
         "https://fitsync-ttq9.onrender.com/register",
@@ -27,8 +29,7 @@ const Signup = () => {
       setFormData({ name: "", email: "", number: "" });
       console.log(formData);
 
-      // Redirect to the /track route after successful registration
-      navigate("/track");
+   
     } catch (error) {
       console.log(error);
       setMessage(error.response?.data?.message || "Something went wrong");
