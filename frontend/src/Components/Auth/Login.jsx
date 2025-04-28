@@ -20,7 +20,7 @@ const Signup = () => {
         e.preventDefault();
         try {
             const response = await axios.post(
-                "http://localhost:5000/login",
+                "https://fitsync-ttq9.onrender.com/login",
                 formData
             );
             setMessage(response.data?.message || "Login successful");
