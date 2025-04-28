@@ -3,7 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cron = require("node-cron");
-const User = require("./Models/User");
+const User = require("./models/user");
 const app = express();
 require('dotenv').config();
 // Twilio setup
