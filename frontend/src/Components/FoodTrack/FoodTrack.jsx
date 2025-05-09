@@ -50,7 +50,7 @@ const FoodSearch = () => {
     fetchCalorieGoal();
   }, []);
 
-  const apiKey = import.meta.env.VITE_USDA_API_KEY;
+  const apiKey = "jcPYbhnCRcnWU5i8Qs1RndvSvy8CdxtneeWsv0yA";
   console.log("API Key:", apiKey);
   const handleSearch = async (e) => {
     e.preventDefault();
