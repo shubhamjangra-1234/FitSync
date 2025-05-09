@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 const User = require("./models/user");
-const DailyLog = require("./models/Dailylog"); // ✅ Correct path and model usage
+const DailyLog = require("./models/DailyLog"); // ✅ Correct path and model usage
 
 const app = express();
 
