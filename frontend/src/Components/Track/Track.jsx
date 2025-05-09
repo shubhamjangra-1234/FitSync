@@ -1,9 +1,12 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import "chart.js/auto";
+import axios from "axios";
+import FoodTrack from "../FoodTrack/FoodTrack";
 
 export default function Track() {
+  const [user, setUser] = useState(null);
+  const [Logs, setLogs] = useState(null);
   const [formData, setFormData] = useState({
     height: "",
     weight: "",
@@ -14,8 +17,6 @@ export default function Track() {
     dietType: "veg",
   });
   const [calories, setCalories] = useState(null);
-  const [dietPlan, setDietPlan] = useState(null);
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -47,129 +48,23 @@ export default function Track() {
       }
 
       setCalories(TDEE);
-      generateDietPlan(TDEE, formData.dietType);
     }
   };
 
-  const generateDietPlan = (calories, dietType) => {
-    const mealCalories = {
-      morning: calories * 0.3,
-      afternoon: calories * 0.4,
-      evening: calories * 0.3,
-    };
+  const saveGoalCalories = async () => {
+    try {
+      const userId = localStorage.getItem("userId");
 
-    const vegMeals = {
-      morning: [
-        {
-          item: "Oats with milk and almonds",
-          protein: 12,
-          carbs: 45,
-          fiber: 8,
-        },
-        { item: "Paneer stuffed paratha", protein: 18, carbs: 50, fiber: 6 },
-        {
-          item: "Fruit smoothie with chia seeds",
-          protein: 10,
-          carbs: 40,
-          fiber: 7,
-        },
-      ],
-      afternoon: [
-        {
-          item: "Mixed vegetable curry + brown rice",
-          protein: 20,
-          carbs: 55,
-          fiber: 10,
-        },
-        { item: "Paneer tikka + salad", protein: 25, carbs: 20, fiber: 5 },
-        {
-          item: "Dal + roti + vegetable stir fry",
-          protein: 22,
-          carbs: 50,
-          fiber: 9,
-        },
-      ],
-      evening: [
-        {
-          item: "Vegetable soup + grilled tofu",
-          protein: 15,
-          carbs: 20,
-          fiber: 6,
-        },
-        {
-          item: "Quinoa salad with chickpeas",
-          protein: 18,
-          carbs: 35,
-          fiber: 8,
-        },
-        {
-          item: "Moong dal chilla with curd",
-          protein: 20,
-          carbs: 30,
-          fiber: 7,
-        },
-      ],
-    };
+      await axios.post("https://fitsync-ttq9.onrender.com/set-goal", {
+        userId,
+        goalCalories: calories,
+      });
 
-    const nonVegMeals = {
-      morning: [
-        {
-          item: "Boiled eggs + whole wheat toast",
-          protein: 20,
-          carbs: 25,
-          fiber: 4,
-        },
-        {
-          item: "Chicken sandwich with veggies",
-          protein: 25,
-          carbs: 40,
-          fiber: 5,
-        },
-        { item: "Greek yogurt with berries", protein: 15, carbs: 20, fiber: 3 },
-      ],
-      afternoon: [
-        {
-          item: "Grilled chicken breast + rice",
-          protein: 35,
-          carbs: 45,
-          fiber: 3,
-        },
-        { item: "Fish curry + quinoa", protein: 30, carbs: 40, fiber: 4 },
-        { item: "Egg curry + roti + salad", protein: 28, carbs: 50, fiber: 6 },
-      ],
-      evening: [
-        { item: "Chicken salad", protein: 30, carbs: 10, fiber: 5 },
-        {
-          item: "Grilled fish with steamed veggies",
-          protein: 28,
-          carbs: 15,
-          fiber: 4,
-        },
-        {
-          item: "Scrambled eggs with sautéed spinach",
-          protein: 22,
-          carbs: 10,
-          fiber: 4,
-        },
-      ],
-    };
-
-    const meals = dietType === "veg" ? vegMeals : nonVegMeals;
-
-    setDietPlan({
-      morning: {
-        items: meals.morning,
-        calories: mealCalories.morning.toFixed(0),
-      },
-      afternoon: {
-        items: meals.afternoon,
-        calories: mealCalories.afternoon.toFixed(0),
-      },
-      evening: {
-        items: meals.evening,
-        calories: mealCalories.evening.toFixed(0),
-      },
-    });
+      alert("🎯 Goal calories saved successfully!");
+    } catch (error) {
+      console.error(error);
+      alert("❌ Failed to save goal calories.");
+    }
   };
 
   const data = {
@@ -186,11 +81,36 @@ export default function Track() {
       },
     ],
   };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        if (!userId || userId.trim() === "") {
+          console.warn("User ID is missing or invalid in local storage.");
+          return;
+        }
+        const res = await axios.get(`https://fitsync-ttq9.onrender.com/${userId}`);
+        if (res.data) {
+          setUser(res.data.user);
+          setLogs(res.data.Logs);
+        } else {
+          console.warn("No data returned from the server.");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        alert("❌ Failed to fetch user data. Please try again later.");
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="min-h-screen p-2 flex flex-col items-center">
       <p className="bg-green-300 p-2 rounded-md text-gray-500 my-2 text-center">
-        This tool is designed to help you achieve your fitness goals by providing a detailed breakdown of your daily calorie needs and a personalized diet plan.
+        This tool is designed to help you achieve your fitness goals by
+        providing a detailed breakdown of your daily calorie needs and a
+        personalized diet plan.
       </p>
       <h2 className="text-4xl text-center text-green-600 mb-4">
         Track Your Daily Calorie Needs
@@ -199,6 +119,11 @@ export default function Track() {
         Enter your details below to calculate your daily calorie requirements
         and get a customized protein-rich diet plan.
       </p>
+      {user && (
+        <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-md mb-4">
+          Welcome, {user.name} 🎉
+        </div>
+      )}
       <div className="bg-white mb-10 p-4 rounded-lg  max-w-5xl w-full">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           {["height", "weight", "age"].map((field, idx) => (
@@ -216,9 +141,7 @@ export default function Track() {
             </div>
           ))}
           <div>
-            <label className="block text-gray-800 text-sm mb-2">
-              Gender
-            </label>
+            <label className="block text-gray-800 text-sm mb-2">Gender</label>
             <select
               name="gender"
               onChange={handleChange}
@@ -285,7 +208,19 @@ export default function Track() {
           Calculate
         </button>
       </div>
-
+      {calories && (
+        <div className="mt-4 text-center">
+          <p className="text-lg font-semibold">
+            Your daily goal: {calories} kcal
+          </p>
+          <button
+            onClick={saveGoalCalories}
+            className="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Save as Goal Calories
+          </button>
+        </div>
+      )}
       {calories && (
         <div className=" w-full flex items-center justify-center flex-col p-4 ">
           <h2 className="text-4xl text-center text-green-600">
@@ -311,38 +246,7 @@ export default function Track() {
         </div>
       )}
 
-      {dietPlan && (
-        <div className="mt-10 w-full max-w-5xl bg-white p-6 rounded-lg shadow-sm shadow-zinc-500">
-          <h3 className="text-2xl  text-green-700 text-center mb-6">
-            Protein Rich Diet Plan (
-            {formData.dietType === "veg" ? "Vegetarian" : "Non-Vegetarian"})
-          </h3>
-          <p className="text-gray-500 text-center mb-4">
-            Below is a detailed breakdown of your meals, including protein, carbs, and fiber content for each item.
-          </p>
-          <div className="space-y-6">
-            {["morning", "afternoon", "evening"].map((meal) => (
-              <div key={meal}>
-                <h4 className="text-xl bg-green-500 rounded-md p-2  text-zinc-100 capitalize mb-2">
-                  {meal} ({dietPlan[meal].calories} kcal)
-                </h4>
-                <ul className=" text-center text-gray-800 space-y-4">
-                  {dietPlan[meal].items.map((item, index) => (
-                    <li key={index}>
-                      <span className="">{item.item}</span> —
-                      <span className="ml-1 text-green-700 text-sm">
-                        Protein: {item.protein}g | Carbs: {item.carbs}g | Fiber:{" "}
-                        {item.fiber}g
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
+      <FoodTrack />
       <footer className="mt-10 text-center text-gray-500">
         <p>
           Note: This tool provides general recommendations. For personalized

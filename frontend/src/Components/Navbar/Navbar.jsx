@@ -35,6 +35,15 @@ export default function Navbar() {
           >
             Track
           </Link>
+          <button
+            onClick={() => {
+              localStorage.clear(); // or selectively remove keys
+              window.location.href = "/login"; // or use navigate if using react-router
+            }}
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+          >
+            Logout
+          </button>
         </div>
 
         {/* Mobile Menu Button */}
@@ -61,6 +70,15 @@ export default function Navbar() {
             >
               Track
             </Link>
+            <button
+              onClick={() => {
+                localStorage.clear(); // or selectively remove keys
+                window.location.href = "/login"; // or use navigate if using react-router
+              }}
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+            >
+              Logout
+            </button>
           </div>
         )}
       </nav>

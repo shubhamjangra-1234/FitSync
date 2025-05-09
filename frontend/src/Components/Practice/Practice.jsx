@@ -1,9 +1,12 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import "chart.js/auto";
+import axios from "axios";
+import FoodTrack from "../FoodTrack/FoodTrack";
 
 export default function Track() {
+  const [user, setUser] = useState(null);
+  const [Logs, setLogs] = useState(null);
   const [formData, setFormData] = useState({
     height: "",
     weight: "",
@@ -15,7 +18,6 @@ export default function Track() {
   });
   const [calories, setCalories] = useState(null);
   const [dietPlan, setDietPlan] = useState(null);
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -51,6 +53,22 @@ export default function Track() {
     }
   };
 
+  const saveGoalCalories = async () => {
+    try {
+      const userId = localStorage.getItem("userId");
+
+      const response = await axios.post("http://localhost:5000/set-goal", {
+        userId,
+        goalCalories: calories,
+      });
+      console.log("Calories amount:", calories);
+      console.log("response data:" + response.data),
+        alert("🎯 Goal calories saved successfully!");
+    } catch (error) {
+      console.error(error);
+      alert("❌ Failed to save goal calories.");
+    }
+  };
   const generateDietPlan = (calories, dietType) => {
     const mealCalories = {
       morning: calories * 0.3,
@@ -186,11 +204,36 @@ export default function Track() {
       },
     ],
   };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        if (!userId || userId.trim() === "") {
+          console.warn("User ID is missing or invalid in local storage.");
+          return;
+        }
+        const res = await axios.get(`http://localhost:5000/user/${userId}`);
+        if (res.data) {
+          setUser(res.data.user);
+          setLogs(res.data.Logs);
+        } else {
+          console.warn("No data returned from the server.");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        alert("❌ Failed to fetch user data. Please try again later.");
+      }
+    };
 
+    fetchData();
+  }, []);
+  
   return (
     <div className="min-h-screen p-2 flex flex-col items-center">
       <p className="bg-green-300 p-2 rounded-md text-gray-500 my-2 text-center">
-        This tool is designed to help you achieve your fitness goals by providing a detailed breakdown of your daily calorie needs and a personalized diet plan.
+        This tool is designed to help you achieve your fitness goals by
+        providing a detailed breakdown of your daily calorie needs and a
+        personalized diet plan.
       </p>
       <h2 className="text-4xl text-center text-green-600 mb-4">
         Track Your Daily Calorie Needs
@@ -199,6 +242,11 @@ export default function Track() {
         Enter your details below to calculate your daily calorie requirements
         and get a customized protein-rich diet plan.
       </p>
+      {user && (
+        <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-md mb-4">
+          Welcome, {user.name} 🎉
+        </div>
+      )}
       <div className="bg-white mb-10 p-4 rounded-lg  max-w-5xl w-full">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           {["height", "weight", "age"].map((field, idx) => (
@@ -216,9 +264,7 @@ export default function Track() {
             </div>
           ))}
           <div>
-            <label className="block text-gray-800 text-sm mb-2">
-              Gender
-            </label>
+            <label className="block text-gray-800 text-sm mb-2">Gender</label>
             <select
               name="gender"
               onChange={handleChange}
@@ -285,7 +331,19 @@ export default function Track() {
           Calculate
         </button>
       </div>
-
+      {calories && (
+        <div className="mt-4 text-center">
+          <p className="text-lg font-semibold">
+            Your daily goal: {calories} kcal
+          </p>
+          <button
+            onClick={saveGoalCalories}
+            className="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Save as Goal Calories
+          </button>
+        </div>
+      )}
       {calories && (
         <div className=" w-full flex items-center justify-center flex-col p-4 ">
           <h2 className="text-4xl text-center text-green-600">
@@ -318,7 +376,8 @@ export default function Track() {
             {formData.dietType === "veg" ? "Vegetarian" : "Non-Vegetarian"})
           </h3>
           <p className="text-gray-500 text-center mb-4">
-            Below is a detailed breakdown of your meals, including protein, carbs, and fiber content for each item.
+            Below is a detailed breakdown of your meals, including protein,
+            carbs, and fiber content for each item.
           </p>
           <div className="space-y-6">
             {["morning", "afternoon", "evening"].map((meal) => (
@@ -342,7 +401,7 @@ export default function Track() {
           </div>
         </div>
       )}
-
+<FoodTrack/>
       <footer className="mt-10 text-center text-gray-500">
         <p>
           Note: This tool provides general recommendations. For personalized

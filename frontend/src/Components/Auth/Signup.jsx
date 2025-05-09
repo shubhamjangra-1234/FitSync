@@ -22,9 +22,17 @@ const Signup = () => {
       navigate("/track");
     try {
       const response = await axios.post(
+        // "http://localhost:5000/register",
         "https://fitsync-ttq9.onrender.com/register",
         formData
       );
+       // Assuming your backend returns user data with _id
+    const userId = response.data.user._id;
+
+    // Store userId in localStorage
+    localStorage.setItem("userId", userId);
+
+    console.log("Logged in. UserID:", userId);
       setMessage(response.data?.message || "Registration successful");
       setFormData({ name: "", email: "", number: "" });
       console.log(formData);
@@ -43,13 +51,32 @@ const Signup = () => {
         Welcome to FitSync, your ultimate fitness companion. Join us today and
         take the first step toward a healthier, more active lifestyle.
       </p>
-      <div className="flex items-center justify-center   ">
+      <div className="flex items-center justify-center">
         <div className="w-full max-w-md bg-white p-8 rounded-md shadow-md shadow-zinc-500">
           {message && (
             <p className="text-center text-red-500 mb-4">{message}</p>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              const phoneRegex = /^\d{10}$/;
+
+              if (!emailRegex.test(formData.email)) {
+                setMessage("Please enter a valid email address.");
+                return;
+              }
+
+              if (!phoneRegex.test(formData.number)) {
+                setMessage("Phone number must be exactly 10 digits.");
+                return;
+              }
+
+              handleSubmit(e);
+            }}
+            className="space-y-6"
+          >
             <div>
               <label className="block text-gray-700 font-medium mb-1">
                 Full Name

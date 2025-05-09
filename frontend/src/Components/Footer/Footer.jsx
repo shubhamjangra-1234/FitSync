@@ -21,24 +21,12 @@ export default function Home() {
             Start Today
           </a>
           </div>
-
-          {/* Product Links */}
-          <div>
-            <h3 className="text-lg font-semibold">Product</h3>
-            <ul className="mt-2 space-y-2">
-              <li><Link to="/features" className="hover:underline">Features</Link></li>
-              <li><Link to="/pricing" className="hover:underline">Pricing</Link></li>
-              <li><Link to="/testimonials" className="hover:underline">Testimonials</Link></li>
-            </ul>
-          </div>
-
           {/* Company Links */}
           <div>
-            <h3 className="text-lg font-semibold">Company</h3>
+            <h3 className="text-lg font-semibold">Quick LInks</h3>
             <ul className="mt-2 space-y-2">
-              <li><Link to="/about" className="hover:underline">About Us</Link></li>
-              <li><Link to="/careers" className="hover:underline">Careers</Link></li>
-              <li><Link to="/blog" className="hover:underline">Blog</Link></li>
+              <li><Link to="/" className="hover:underline">Home</Link></li>
+              <li><Link to="/Track" className="hover:underline">Tracks</Link></li>
             </ul>
           </div>
         </div>

@@ -21,14 +21,22 @@ const Signup = () => {
         try {
             const response = await axios.post(
                 "https://fitsync-ttq9.onrender.com/login",
+                // "http://localhost:5000/login",
                 formData
             );
+             // Assuming your backend returns user data with _id
+    const userId = response.data.user._id;
+
+    // Store userId in localStorage
+    localStorage.setItem("userId", userId);
+
+    console.log("Logged in. UserID:", userId);
             setMessage(response.data?.message || "Login successful");
             setFormData({ name: "", email: "", number: "" });
             console.log(formData);
 
-            // Redirect to /track route after successful login
             navigate("/track");
+            // Redirect to /track route after successful login
         } catch (error) {
             console.log(error);
             setMessage(error.response?.data?.message || "Something went wrong");
