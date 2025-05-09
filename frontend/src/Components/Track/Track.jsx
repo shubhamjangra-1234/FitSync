@@ -89,7 +89,7 @@ export default function Track() {
           console.warn("User ID is missing or invalid in local storage.");
           return;
         }
-        const res = await axios.get(`https://fitsync-ttq9.onrender.com/${userId}`);
+        const res = await axios.get(`https://fitsync-ttq9.onrender.com/user/${userId}`);
         if (res.data) {
           setUser(res.data.user);
           setLogs(res.data.Logs);

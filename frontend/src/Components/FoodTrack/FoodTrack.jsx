@@ -20,7 +20,7 @@ const FoodSearch = () => {
   const fetchCalorieGoal = async () => {
     const userId = localStorage.getItem("userId");
     try {
-      const response = await axios.get(`http://localhost:5000/user/${userId}`);
+      const response = await axios.get(`https://fitsync-ttq9.onrender.com/user/${userId}`);
       if (response.status === 200) {
         const user = response.data.user;
         setCalorieGoal(user.goalCalories || 0); // Default to 0 if not set
@@ -51,7 +51,6 @@ const FoodSearch = () => {
   }, []);
 
   const apiKey = "jcPYbhnCRcnWU5i8Qs1RndvSvy8CdxtneeWsv0yA";
-  console.log("API Key:", apiKey);
   const handleSearch = async (e) => {
     e.preventDefault();
     setError("");
